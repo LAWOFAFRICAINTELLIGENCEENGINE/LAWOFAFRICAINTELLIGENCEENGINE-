@@ -20,7 +20,7 @@ st.set_page_config(
 # --- CUSTOM APP STYLING ---
 st.markdown("""
 <style>
-    /* Show Streamlit's default top menu and footer for a clean mobile look */
+    /* Hide Streamlit's default top menu and footer for a clean mobile look */
     header {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -44,6 +44,14 @@ st.markdown("""
     .stChatInput {
         border-radius: 25px !important;
         background-color: #1E1E1E !important;
+    }
+
+    /* Target the Chat Input Send Button and make it Green */
+    [data-testid="stChatInputSubmitButton"] {
+        background-color: #25D366 !important; /* WhatsApp Green */
+        color: white !important;
+        border-radius: 50% !important; /* Make it a circle */
+        padding: 5px !important;
     }
 </style>
 """, unsafe_allow_html=True)
