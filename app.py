@@ -9,7 +9,7 @@ import json
 # 1. SYSTEM CONFIGURATION & SECURITY
 # 
 
-# --- NEW: We customized your 3-dot menu here! ___
+# --- NEW: We customized your 3-dot menu here! ---
 st.set_page_config(
     page_title="Law of Africa Intelligence Engine", 
     page_icon="⚖️", 
