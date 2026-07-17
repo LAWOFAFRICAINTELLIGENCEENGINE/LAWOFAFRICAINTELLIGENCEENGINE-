@@ -8,18 +8,14 @@ import json
 #
 # 1. SYSTEM CONFIGURATION & SECURITY
 # 
-
 # --- NEW: We customized your 3-dot menu here! ---
 st.set_page_config(
-    page_title="Law of Africa Intelligence Engine", 
-    page_icon="⚖️", 
-    layout="wide",
+    page_title="Law of Africa Intelligence Engine",
     menu_items={
-        'About': "### 🏛️ Law of Africa Intelligence Engine\nSecure Legal AI routing system."
+        'Get Help': 'https://www.yourdomain.com/help',
+        'Report a bug': "https://www.yourdomain.com/bug"
     }
 )
-
-
 # --- REPLACEMENT MASTER STYLING BLOCK (With Raw SVG Line Art) ---
 st.markdown("""
 <style>
