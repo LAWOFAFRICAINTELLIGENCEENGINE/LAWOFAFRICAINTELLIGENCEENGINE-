@@ -30,7 +30,6 @@ except Exception:
     legal_json = "Base legal knowledge pending upload."
 
 # 
-
 # 2. AUTHENTICATION LOGIC (The Vault)
 # 
 
@@ -49,7 +48,8 @@ try:
     authenticator.login(location="main")
 
 except Exception as e:
-    st.error("Authentication module awaiting configuration in st.secrets.")
+    st.error("🚨 SECRETS DIAGNOSTIC MODE ACTIVE 🚨")
+    st.error(f"The exact missing piece is: **{e}**")
     st.stop()
 
 # 
