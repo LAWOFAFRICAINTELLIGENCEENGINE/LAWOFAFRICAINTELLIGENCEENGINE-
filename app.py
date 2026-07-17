@@ -1,5 +1,5 @@
 # (Assuming this is inside your main try block)
-        authenticator.login(location="main")
+authenticator.login(location="main")
 except Exception as e:
     st.error("Authentication module awaiting configuration in st.secrets.")
     st.stop()
