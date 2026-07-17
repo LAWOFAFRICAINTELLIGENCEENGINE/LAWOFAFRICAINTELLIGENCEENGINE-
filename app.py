@@ -20,7 +20,7 @@ st.set_page_config(
 )
 
 
-# --- REPLACEMENT MASTER STYLING BLOCK ---
+# --- REPLACEMENT MASTER STYLING BLOCK (With Raw SVG Line Art) ---
 st.markdown("""
 <style>
     /* Hide ONLY the footer now */
@@ -48,28 +48,26 @@ st.markdown("""
         padding-right: 15px !important;
     }
 
-    /* --- THE CUSTOM SPARKLE PLANE HACK --- */
+    /* --- THE ULTIMATE SVG SEND BUTTON --- */
     
-    /* 1. Make the button a big Green Circle */
-    [data-testid="stChatInputSubmitButton"] {
-        background-color: #25D366 !important; /* WhatsApp Green */
-        border-radius: 50% !important; 
-        padding: 10px 15px !important; 
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    
-    /* 2. Hide Streamlit's default boring upward arrow */
+    /* 1. Hide Streamlit's default boring arrow */
     [data-testid="stChatInputSubmitButton"] svg {
         display: none !important;
     }
     
-    /* 3. Inject our own Sparkle and Paper Plane emojis! */
-    [data-testid="stChatInputSubmitButton"]::after {
-        content: "✨✈️"; 
-        font-size: 18px !important;
-        color: white !important;
+    /* 2. Create the Green Circle and use code to DRAW the plane and sparkle */
+    [data-testid="stChatInputSubmitButton"] {
+        background-color: #25D366 !important; /* The Green Color you want */
+        border-radius: 50% !important; 
+        width: 35px !important;
+        height: 35px !important;
+        /* This long string of code mathematically draws the line-art plane and star in white! */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='19 4 13 19 10 12 4 9 19 4'/%3E%3Cpath d='M19 4L10 12'/%3E%3Cpath d='M16 16 l1 -2 l1 2 l2 1 l-2 1 l-1 2 l-1 -2 l-2 -1 z' fill='white' stroke='none'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 20px !important;
+        padding: 0 !important;
+        border: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
