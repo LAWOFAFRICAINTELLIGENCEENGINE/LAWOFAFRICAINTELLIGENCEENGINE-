@@ -10,11 +10,43 @@ import json
 # 1. SYSTEM CONFIGURATION & SECURITY
 # 
 
+
 st.set_page_config(
     page_title="Law of Africa Intelligence Engine", 
     page_icon="⚖️", 
     layout="wide"
 )
+
+# --- NEW: CUSTOM APP STYLING ---
+st.markdown("""
+<style>
+    /* Hide Streamlit's default top menu and footer for a clean mobile look */
+    header {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Make the main background flush with the screen */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 5rem;
+    }
+
+    /* Style the chat bubbles to look modern and rounded */
+    .stChatMessage {
+        background-color: #1E1E1E; 
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #333333;
+    }
+    
+    /* Smooth out the bottom chat input box */
+    .stChatInput {
+        border-radius: 25px !important;
+        background-color: #1E1E1E !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Safely initialize Database Connection
 try:
@@ -33,6 +65,7 @@ except Exception:
 
 # 2. AUTHENTICATION LOGIC (The Vault)
 # 
+
 
 try:
     # Converting read-only secrets into an editable photocopy 
@@ -53,10 +86,12 @@ except Exception as e:
     st.error("🚨 SECRETS DIAGNOSTIC MODE ACTIVE 🚨")
     st.error(f"The exact missing piece is: **{e}**")
     st.stop()
+
 # 
 
 # 3. REGISTRATION LOGIC
 # 
+
 
 if st.session_state.get("authentication_status") is False:
     st.error("❌ Incorrect username or password!")
@@ -77,6 +112,7 @@ elif st.session_state.get("authentication_status") is None:
 # 4. MAIN APP ROUTING & UI
 # 
 
+
 if st.session_state.get("authentication_status"):
     current_username = st.session_state["username"]
     
@@ -93,10 +129,18 @@ if st.session_state.get("authentication_status"):
         st.divider()
         authenticator.logout("Logout", "sidebar")
 
+
     # 
 
     # 5. BIG DATA INGESTION (Chief Justice View)
     # 
+
+    
+    # --- NEW: DASHBOARD WELCOME MESSAGE ---
+    if active_node == "Dashboard":
+        st.title("🏛️ Welcome to the Law of Africa")
+        st.info("👈 Open the sidebar menu and select **Chief Justice Telemetry 📊** to launch the AI Chat Engine.")
+
 
     if active_node == "Chief Justice Telemetry 📊":
         st.title("📊 Chief Justice Telemetry")
