@@ -1,13 +1,72 @@
-# (Assuming this is inside your main try block)
-authenticator.login(location="main")
+import streamlit as st
+import streamlit_authenticator as stauth
+import PyPDF2
+from openai import OpenAI
+from sqlalchemy import text
+import json
+
+# 
+
+# 1. SYSTEM CONFIGURATION & SECURITY
+# 
+
+st.set_page_config(
+    page_title="Law of Africa Intelligence Engine", 
+    page_icon="⚖️", 
+    layout="wide"
+)
+
+# Safely initialize OpenAI Client using secrets
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except Exception:
+    st.warning("OpenAI API Key awaiting configuration.")
+    client = None
+
+# Safely initialize Database Connection
+try:
+    conn = st.connection("postgresql", type="sql")
+except Exception:
+    conn = None
+
+# Base Knowledge Placeholder (Ensure legal_json is loaded if you have the file)
+try:
+    with open("legal_knowledge.json", "r") as file:
+        legal_json = json.load(file)
+except Exception:
+    legal_json = "Base legal knowledge pending upload."
+
+# 
+
+# 2. AUTHENTICATION LOGIC (The Vault)
+# 
+
+try:
+    # Pulling your secure credentials directly from st.secrets
+    credentials = dict(st.secrets["credentials"])
+    cookie = st.secrets["cookie"]
+    
+    authenticator = stauth.Authenticate(
+        credentials,
+        cookie["name"],
+        cookie["key"],
+        cookie["expiry_days"],
+        st.secrets.get("preauthorized", {"emails": []})
+    )
+    
+    # This is the exact line that was throwing the error earlier, now safely enclosed!
+    authenticator.login(location="main")
+
 except Exception as e:
     st.error("Authentication module awaiting configuration in st.secrets.")
     st.stop()
 
 
-# ==========================================
-# 4. REGISTRATION LOGIC
-# ==========================================
+# 
+
+# 3. REGISTRATION LOGIC
+# 
+
 if st.session_state.get("authentication_status") is False:
     st.error("❌ Incorrect username or password!")
 
@@ -21,82 +80,110 @@ elif st.session_state.get("authentication_status") is None:
         new_pass = st.text_input("Password", type="password")
         
         # if st.button("Create Account"): 
-        # (The rest of your account creation logic goes here)
+        # (Your database account creation logic goes here)
 
 
-# ==========================================
-# 6. BIG DATA INGESTION (Chief Justice View)
-# ==========================================
-if active_node == "Chief Justice Telemetry 📊":
-    st.title("📊 Chief Justice Telemetry")
-    st.write("Secure infrastructure metrics and document ingestion.")
+# 
 
-    # --- SECURE PDF UPLOADER ---
-    st.subheader("📥 Dynamic Legal Ingestion Engine")
-    st.write("Drag and drop legal PDFs here. The engine will instantly read and memorize the contents.")
+# 4. MAIN APP ROUTING & UI
+# 
+
+# Only grant access if the user successfully logs in
+if st.session_state.get("authentication_status"):
     
-    uploaded_file = st.file_uploader("Upload PDF Document", type=["pdf"])
+    # Capture the logged-in user's name for telemetry
+    current_username = st.session_state["username"]
+    
+    # Sidebar Navigation
+    with st.sidebar:
+        st.write(f"Welcome, **{st.session_state['name']}**")
+        active_node = st.radio("Navigation", ["Dashboard", "Chief Justice Telemetry 📊"])
+        authenticator.logout("Logout", "sidebar")
 
-    if uploaded_file is not None:
-        try:
-            # Instantly extract text from the PDF
-            pdf_reader = PyPDF2.PdfReader(uploaded_file)
-            extracted_text = ""
-            for page in pdf_reader.pages:
-                extracted_text += page.extract_text() + "\n"
-            
-            # (Assuming you map the extracted text to dynamic_memory here)
+    # 
 
-            system_directive = f"""
-            BASE KNOWLEDGE: {legal_json}
-            DYNAMIC UPLOADED MEMORY (PDF TEXT): {dynamic_memory}
-            If the user asks about the uploaded document, use the DYNAMIC UPLOADED MEMORY to analyze it."""
+    # 5. BIG DATA INGESTION (Chief Justice View)
+    # 
 
-            system_prompt = {"role": "system", "content": system_directive}
+    if active_node == "Chief Justice Telemetry 📊":
+        st.title("📊 Chief Justice Telemetry")
+        st.write("Secure infrastructure metrics and document ingestion.")
 
-            # Render Chat History
-            for message in st.session_state.messages:
-                with st.chat_message(message["role"]):
-                    st.write(message["content"])
+        # --- SECURE PDF UPLOADER ---
+        st.subheader("📥 Dynamic Legal Ingestion Engine")
+        st.write("Drag and drop legal PDFs here. The engine will instantly read and memorize the contents.")
+        
+        uploaded_file = st.file_uploader("Upload PDF Document", type=["pdf"])
 
-            # User Input
-            prompt = st.chat_input("Enter legal query or statute parameter...")
+        if uploaded_file is not None:
+            try:
+                # Instantly extract text from the PDF
+                pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                extracted_text = ""
+                for page in pdf_reader.pages:
+                    extracted_text += page.extract_text() + "\n"
+                
+                # Assign extracted text to dynamic memory
+                dynamic_memory = extracted_text
 
-            if prompt:
-                st.session_state.messages.append({"role": "user", "content": prompt})
-                with st.chat_message("user"):
-                    st.write(prompt)
+                system_directive = f"""
+                BASE KNOWLEDGE: {legal_json}
+                DYNAMIC UPLOADED MEMORY (PDF TEXT): {dynamic_memory}
+                If the user asks about the uploaded document, use the DYNAMIC UPLOADED MEMORY to analyze it."""
 
-                with st.chat_message("assistant"):
-                    conversation_history = [system_prompt] + st.session_state.messages
+                system_prompt = {"role": "system", "content": system_directive}
 
-                    try:
-                        # LLM Call
-                        response = client.chat.completions.create(
-                            model="llama-3.1-8b-instant",
-                            messages=conversation_history,
-                            temperature=0.1
-                        )
-                        
-                        engine_response = response.choices[0].message.content
-                        st.write(engine_response)
-                        
-                    except Exception as e:
-                        engine_response = f"Cloud Execution Failure: {e}"
-                        st.error(engine_response)
+                # Initialize chat history if it doesn't exist yet
+                if "messages" not in st.session_state:
+                    st.session_state.messages = []
 
-                # Save AI response to memory
-                st.session_state.messages.append({"role": "assistant", "content": engine_response})
+                # Render Chat History
+                for message in st.session_state.messages:
+                    with st.chat_message(message["role"]):
+                        st.write(message["content"])
 
-                # --- BANDWIDTH TRACKING ---
-                try:
-                    with conn.session as s:
-                        s.execute(text("UPDATE users SET query_count = query_count + 1 WHERE username = :u"), {"u": current_username})
-                        s.commit()
-                except Exception as e:
-                    st.error(f"Failed to update query telemetry: {e}")
+                # User Input
+                prompt = st.chat_input("Enter legal query or statute parameter...")
 
-                st.rerun()
+                if prompt:
+                    st.session_state.messages.append({"role": "user", "content": prompt})
+                    with st.chat_message("user"):
+                        st.write(prompt)
 
-        except Exception as e:
-            st.error(f"Failed to process PDF: {e}")
+                    with st.chat_message("assistant"):
+                        conversation_history = [system_prompt] + st.session_state.messages
+
+                        try:
+                            # LLM Call
+                            if client:
+                                response = client.chat.completions.create(
+                                    model="llama-3.1-8b-instant",
+                                    messages=conversation_history,
+                                    temperature=0.1
+                                )
+                                engine_response = response.choices[0].message.content
+                            else:
+                                engine_response = "System Error: OpenAI Client is not connected. Check API keys."
+                            
+                            st.write(engine_response)
+                            
+                        except Exception as e:
+                            engine_response = f"Cloud Execution Failure: {e}"
+                            st.error(engine_response)
+
+                    # Save AI response to memory
+                    st.session_state.messages.append({"role": "assistant", "content": engine_response})
+
+                    # --- BANDWIDTH TRACKING ---
+                    if conn:
+                        try:
+                            with conn.session as s:
+                                s.execute(text("UPDATE users SET query_count = query_count + 1 WHERE username = :u"), {"u": current_username})
+                                s.commit()
+                        except Exception as e:
+                            st.error(f"Failed to update query telemetry: {e}")
+
+                    st.rerun()
+
+            except Exception as e:
+                st.error(f"Failed to process PDF: {e}")
