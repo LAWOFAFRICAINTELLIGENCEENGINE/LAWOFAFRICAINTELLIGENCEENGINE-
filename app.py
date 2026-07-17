@@ -30,12 +30,14 @@ except Exception:
     legal_json = "Base legal knowledge pending upload."
 
 # 
+
 # 2. AUTHENTICATION LOGIC (The Vault)
 # 
 
 try:
-    credentials = dict(st.secrets["credentials"])
-    cookie = st.secrets["cookie"]
+    # Converting read-only secrets into an editable photocopy 
+    credentials = st.secrets["credentials"].to_dict()
+    cookie = st.secrets["cookie"].to_dict()
     
     authenticator = stauth.Authenticate(
         credentials,
@@ -51,7 +53,6 @@ except Exception as e:
     st.error("🚨 SECRETS DIAGNOSTIC MODE ACTIVE 🚨")
     st.error(f"The exact missing piece is: **{e}**")
     st.stop()
-
 # 
 
 # 3. REGISTRATION LOGIC
