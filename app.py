@@ -16,20 +16,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# Safely initialize OpenAI Client using secrets
-try:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-except Exception:
-    st.warning("OpenAI API Key awaiting configuration.")
-    client = None
-
 # Safely initialize Database Connection
 try:
     conn = st.connection("postgresql", type="sql")
 except Exception:
     conn = None
 
-# Base Knowledge Placeholder (Ensure legal_json is loaded if you have the file)
+# Base Knowledge Placeholder
 try:
     with open("legal_knowledge.json", "r") as file:
         legal_json = json.load(file)
@@ -42,7 +35,6 @@ except Exception:
 # 
 
 try:
-    # Pulling your secure credentials directly from st.secrets
     credentials = dict(st.secrets["credentials"])
     cookie = st.secrets["cookie"]
     
@@ -54,13 +46,11 @@ try:
         st.secrets.get("preauthorized", {"emails": []})
     )
     
-    # This is the exact line that was throwing the error earlier, now safely enclosed!
     authenticator.login(location="main")
 
 except Exception as e:
     st.error("Authentication module awaiting configuration in st.secrets.")
     st.stop()
-
 
 # 
 
@@ -78,26 +68,28 @@ elif st.session_state.get("authentication_status") is None:
         new_user = st.text_input("Username")
         new_name = st.text_input("Full Name")
         new_pass = st.text_input("Password", type="password")
-        
         # if st.button("Create Account"): 
         # (Your database account creation logic goes here)
-
 
 # 
 
 # 4. MAIN APP ROUTING & UI
 # 
 
-# Only grant access if the user successfully logs in
 if st.session_state.get("authentication_status"):
-    
-    # Capture the logged-in user's name for telemetry
     current_username = st.session_state["username"]
     
-    # Sidebar Navigation
+    # Sidebar Navigation & AI Engine Selector
     with st.sidebar:
         st.write(f"Welcome, **{st.session_state['name']}**")
         active_node = st.radio("Navigation", ["Dashboard", "Chief Justice Telemetry 📊"])
+        
+        st.divider()
+        st.write("⚙️ **Engine Settings**")
+        # THIS IS YOUR NEW SWITCHBOARD
+        ai_engine = st.selectbox("🧠 Select AI Engine", ["Groq (Llama-3)", "Gemini (Google)", "Grok (Elon AI)"])
+        
+        st.divider()
         authenticator.logout("Logout", "sidebar")
 
     # 
@@ -107,23 +99,20 @@ if st.session_state.get("authentication_status"):
 
     if active_node == "Chief Justice Telemetry 📊":
         st.title("📊 Chief Justice Telemetry")
-        st.write("Secure infrastructure metrics and document ingestion.")
+        st.write(f"Secure infrastructure metrics. Currently routed through: **{ai_engine}**")
 
         # --- SECURE PDF UPLOADER ---
         st.subheader("📥 Dynamic Legal Ingestion Engine")
-        st.write("Drag and drop legal PDFs here. The engine will instantly read and memorize the contents.")
         
         uploaded_file = st.file_uploader("Upload PDF Document", type=["pdf"])
 
         if uploaded_file is not None:
             try:
-                # Instantly extract text from the PDF
                 pdf_reader = PyPDF2.PdfReader(uploaded_file)
                 extracted_text = ""
                 for page in pdf_reader.pages:
                     extracted_text += page.extract_text() + "\n"
                 
-                # Assign extracted text to dynamic memory
                 dynamic_memory = extracted_text
 
                 system_directive = f"""
@@ -133,16 +122,13 @@ if st.session_state.get("authentication_status"):
 
                 system_prompt = {"role": "system", "content": system_directive}
 
-                # Initialize chat history if it doesn't exist yet
                 if "messages" not in st.session_state:
                     st.session_state.messages = []
 
-                # Render Chat History
                 for message in st.session_state.messages:
                     with st.chat_message(message["role"]):
                         st.write(message["content"])
 
-                # User Input
                 prompt = st.chat_input("Enter legal query or statute parameter...")
 
                 if prompt:
@@ -153,25 +139,43 @@ if st.session_state.get("authentication_status"):
                     with st.chat_message("assistant"):
                         conversation_history = [system_prompt] + st.session_state.messages
 
+                        # --- MULTI-MODEL ROUTING LOGIC ---
                         try:
-                            # LLM Call
-                            if client:
-                                response = client.chat.completions.create(
-                                    model="llama-3.1-8b-instant",
-                                    messages=conversation_history,
-                                    temperature=0.1
-                                )
-                                engine_response = response.choices[0].message.content
-                            else:
-                                engine_response = "System Error: OpenAI Client is not connected. Check API keys."
+                            # 1. Determine which keys and URLs to use based on the dropdown
+                            if ai_engine == "Groq (Llama-3)":
+                                api_key = st.secrets.get("GROQ_API_KEY")
+                                base_url = "https://api.groq.com/openai/v1"
+                                model_name = "llama-3.1-8b-instant"
+                            elif ai_engine == "Gemini (Google)":
+                                api_key = st.secrets.get("GEMINI_API_KEY")
+                                base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+                                model_name = "gemini-1.5-flash"
+                            elif ai_engine == "Grok (Elon AI)":
+                                api_key = st.secrets.get("GROK_API_KEY")
+                                base_url = "https://api.x.ai/v1"
+                                model_name = "grok-beta"
+
+                            # 2. Check if the key exists
+                            if not api_key:
+                                st.error(f"⚠️ {ai_engine} API Key missing in st.secrets!")
+                                st.stop()
+
+                            # 3. Spin up the specific AI engine requested
+                            active_client = OpenAI(api_key=api_key, base_url=base_url)
                             
+                            # 4. Generate the response
+                            response = active_client.chat.completions.create(
+                                model=model_name,
+                                messages=conversation_history,
+                                temperature=0.1
+                            )
+                            engine_response = response.choices[0].message.content
                             st.write(engine_response)
                             
                         except Exception as e:
-                            engine_response = f"Cloud Execution Failure: {e}"
+                            engine_response = f"Cloud Execution Failure ({ai_engine}): {e}"
                             st.error(engine_response)
 
-                    # Save AI response to memory
                     st.session_state.messages.append({"role": "assistant", "content": engine_response})
 
                     # --- BANDWIDTH TRACKING ---
@@ -181,7 +185,7 @@ if st.session_state.get("authentication_status"):
                                 s.execute(text("UPDATE users SET query_count = query_count + 1 WHERE username = :u"), {"u": current_username})
                                 s.commit()
                         except Exception as e:
-                            st.error(f"Failed to update query telemetry: {e}")
+                            pass
 
                     st.rerun()
 
