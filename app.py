@@ -13,11 +13,12 @@ import json
 st.set_page_config(
     page_title="Law of Africa Intelligence Engine", 
     page_icon="⚖️", 
-    layout="wide"
-)
+    layout="wide",
     menu_items={
         'About': "### 🏛️ Law of Africa Intelligence Engine\nSecure Legal AI routing system."
     }
+)
+
 
 # --- REPLACEMENT MASTER STYLING BLOCK ---
 st.markdown("""
