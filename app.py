@@ -5,33 +5,35 @@ from openai import OpenAI
 from sqlalchemy import text
 import json
 
-# 
-
+#
 # 1. SYSTEM CONFIGURATION & SECURITY
 # 
 
-
+# --- NEW: We customized your 3-dot menu here! ---
 st.set_page_config(
     page_title="Law of Africa Intelligence Engine", 
     page_icon="⚖️", 
-    layout="wide"
+    layout="wide",
+    menu_items={
+        'About': "### 🏛️ Law of Africa Intelligence Engine\nSecure Legal AI routing system."
+    }
 )
 
-# --- CUSTOM APP STYLING ---
+# --- REPLACEMENT MASTER STYLING BLOCK ---
 st.markdown("""
 <style>
-    /* Hide Streamlit's default top menu and footer for a clean mobile look */
-    header {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
+    /* WE DELETED THE CODE HIDING THE HEADER SO YOUR 3-DOT MENU COMES BACK! */
+    
+    /* Hide ONLY the footer now */
     footer {visibility: hidden;}
     
     /* Make the main background flush with the screen */
     .block-container {
-        padding-top: 2rem;
+        padding-top: 3rem; /* Gave a little room for the top bar */
         padding-bottom: 5rem;
     }
 
-    /* Style the chat bubbles to look modern and rounded */
+    /* Style the chat bubbles for modern rounded look */
     .stChatMessage {
         background-color: #1E1E1E; 
         border-radius: 15px;
@@ -44,14 +46,15 @@ st.markdown("""
     .stChatInput {
         border-radius: 25px !important;
         background-color: #1E1E1E !important;
+        padding-right: 15px !important;
     }
 
-    /* Target the Chat Input Send Button and make it Green */
+    /* A Bigger and Premium Blue Send Button */
     [data-testid="stChatInputSubmitButton"] {
-        background-color: #25D366 !important; /* WhatsApp Green */
+        background-color: #007BFF !important; 
         color: white !important;
-        border-radius: 50% !important; /* Make it a circle */
-        padding: 5px !important;
+        border-radius: 50% !important; 
+        padding: 10px !important; 
     }
 </style>
 """, unsafe_allow_html=True)
