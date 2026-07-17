@@ -9,7 +9,7 @@ import json
 # 1. SYSTEM CONFIGURATION & SECURITY
 # 
 
-# --- NEW: We customized your 3-dot menu here! ---
+# --- NEW: We customized your 3-dot menu here! (...)
 st.set_page_config(
     page_title="Law of Africa Intelligence Engine", 
     page_icon="⚖️", 
@@ -17,19 +17,16 @@ st.set_page_config(
     menu_items={
         'About': "### 🏛️ Law of Africa Intelligence Engine\nSecure Legal AI routing system."
     }
-)
 
 # --- REPLACEMENT MASTER STYLING BLOCK ---
 st.markdown("""
 <style>
-    /* WE DELETED THE CODE HIDING THE HEADER SO YOUR 3-DOT MENU COMES BACK! */
-    
     /* Hide ONLY the footer now */
     footer {visibility: hidden;}
     
     /* Make the main background flush with the screen */
     .block-container {
-        padding-top: 3rem; /* Gave a little room for the top bar */
+        padding-top: 3rem; 
         padding-bottom: 5rem;
     }
 
@@ -49,12 +46,28 @@ st.markdown("""
         padding-right: 15px !important;
     }
 
-    /* A Bigger and Premium Blue Send Button */
+    /* --- THE CUSTOM SPARKLE PLANE HACK --- */
+    
+    /* 1. Make the button a big Green Circle */
     [data-testid="stChatInputSubmitButton"] {
-        background-color: #007BFF !important; 
-        color: white !important;
+        background-color: #25D366 !important; /* WhatsApp Green */
         border-radius: 50% !important; 
-        padding: 10px !important; 
+        padding: 10px 15px !important; 
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* 2. Hide Streamlit's default boring upward arrow */
+    [data-testid="stChatInputSubmitButton"] svg {
+        display: none !important;
+    }
+    
+    /* 3. Inject our own Sparkle and Paper Plane emojis! */
+    [data-testid="stChatInputSubmitButton"]::after {
+        content: "✨✈️"; 
+        font-size: 18px !important;
+        color: white !important;
     }
 </style>
 """, unsafe_allow_html=True)
