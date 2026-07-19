@@ -18,10 +18,48 @@ st.set_page_config(page_title="Law of Africa & Universal Engine", page_icon="⚖
 
 st.markdown("""
 <style>
+/* --- CUSTOM SEND BUTTON (Green + Arrow with Sparkle) --- */
 [data-testid="stChatInputSubmitButton"] {
     background-color: #1EBE55 !important;
-    color: white !important;
     border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Hide the default Streamlit plane icon */
+[data-testid="stChatInputSubmitButton"] svg {
+    display: none !important;
+}
+
+/* Inject the custom Sparkle + Hollow Arrow Icon */
+[data-testid="stChatInputSubmitButton"]::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 2L11 13' /%3E%3Cpath d='M22 2l-7 20-4-9-9-4 20-7z' /%3E%3Cpath d='M5 13l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z' fill='white' stroke='none' /%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* --- CUSTOM 3-DOTS APP MENU --- */
+/* Hide the default Streamlit hamburger menu */
+[data-testid="baseButton-header"] svg {
+    display: none !important;
+}
+
+/* Inject 3 vertical dots */
+[data-testid="baseButton-header"]::after {
+    content: '\\22EE'; 
+    font-size: 26px;
+    font-weight: bold;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 4px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -32,7 +70,7 @@ if "messages" not in st.session_state:
 if "query_count" not in st.session_state:
     st.session_state.query_count = 0 
 
-# 3. Dynamic Knowledge Database (Law, History, & General)
+# 3. Dynamic Knowledge Database
 knowledge_database = {
     "Customary Land Law": {"Category": "Legal", "Region": "West Africa", "Status": "Active Cache"},
     "Tribal Lineage Records": {"Category": "History", "Region": "Pan-Africa (500+ Yrs)", "Status": "Deep Cache Online"},
@@ -41,10 +79,9 @@ knowledge_database = {
 }
 knowledge_json = json.dumps(knowledge_database, indent=2)
 
-# 4. MASTER CONTROL (Simplified Sidebar)
+# 4. MASTER CONTROL (Sidebar)
 with st.sidebar:
-    st.title("🧠 Engine Control")
-    st.write("The 3-Brain Super-System serves Lawyers, Engineers, and Everyday Users automatically.")
+    st.title("⚙️ Engine Control")
     
     st.divider()
     show_telemetry = st.toggle("📊 View Engine Telemetry")
@@ -66,7 +103,7 @@ if show_telemetry:
     
     col1, col2 = st.columns(2)
     col1.metric(label="Total Omni-Queries Processed", value=st.session_state.query_count)
-    col2.metric(label="System Speed Latency", value="Optimal (Groq Accelerated)")
+    col2.metric(label="System Speed Latency", value="Optimal")
     
     st.divider()
     st.subheader("📜 Live Universal Knowledge Bases")
@@ -75,8 +112,8 @@ if show_telemetry:
 
 # 6. UNIVERSAL SUPER-SYSTEM INTERFACE
 else: 
+    # Clean, strict branding - NO extra captions
     st.title("Law of Africa & Universal Intelligence Engine ⚖️🌍")
-    st.caption("For Lawyers and Everyone Else. Solves Legal cases, 500+ Year History, Code, Math, and Everyday queries. Powered by Grok 4.5 + Gemini + Groq Llama 3.3.")
         
     # Render Chat History
     for message in st.session_state.messages:
@@ -84,7 +121,7 @@ else:
             st.write(message["content"])
 
     # User Input
-    prompt = st.chat_input("Ask a legal problem, trace history, write code, or ask any general question...")
+    prompt = st.chat_input("Enter your request...")
 
     if prompt:
         # Update Telemetry & Save User Prompt
@@ -101,7 +138,7 @@ else:
                 # STAGE 1: GROK (xAI) - THE DEEP RESEARCH & CONTEXT ENGINE
                 # 
 
-                with st.spinner("🔍 Brain 1 (Grok/xAI): Analyzing request and pulling deep context..."):
+                with st.spinner("🔍 Analyzing request and pulling deep context..."):
                     try:
                         xai_client = OpenAI(
                             api_key=st.secrets["XAI_API_KEY"],
@@ -119,15 +156,15 @@ else:
                     except Exception as e:
                         grok_context = f"Grok Archival Bypass: Proceeding with base engine prompt. Error: {e}"
 
-                    with st.expander("👁️ View Brain 1 (Grok) Context & Research"):
+                    with st.expander("👁️ View Internal Research Context"):
                         st.write(grok_context)
 
                 # 
 
                 # STAGE 2: GEMINI - THE SUPREME ROUTER & ARCHITECT
-                #
+                # 
 
-                with st.spinner("🏗️ Brain 2 (Gemini): Mapping the absolute master strategy..."):
+                with st.spinner("🏗️ Mapping the absolute master strategy..."):
                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                     gemini_model = genai.GenerativeModel('gemini-1.5-pro')
                     
@@ -146,7 +183,7 @@ else:
                     
                     blueprint = gemini_model.generate_content(architect_prompt).text
                     
-                    with st.expander("👁️ View Brain 2 (Gemini) Supreme Logic Blueprint"):
+                    with st.expander("👁️ View Internal Logic Blueprint"):
                         st.write(blueprint)
                 
                 # 
@@ -154,11 +191,11 @@ else:
                 # STAGE 3: GROQ - THE ULTRA-FAST EXECUTIVE PROBLEM SOLVER
                 # 
 
-                with st.spinner("⚡ Brain 3 (Groq): Executing final response at maximum speed and accuracy..."):
+                with st.spinner("⚡ Executing final response..."):
                     groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
                     
-                    executor_system = "You are Brain 3, the Elite Executor AI. You operate with unlimited capacity. Read the Architect's strategy and generate the definitive final output. Be authoritative for law/history, technically flawless for code, and highly helpful for general queries. Do not leave placeholders."
-                    executor_prompt = f"ARCHITECT'S STRATEGY:\n{blueprint}\n\nExecute this strategy perfectly and deliver the definitive final master output."
+                    executor_system = "You are the Law of Africa & Universal Intelligence Engine. You operate with unlimited capacity. Read the internal strategy and generate the definitive final output. Be authoritative for law/history, technically flawless for code, and highly helpful for general queries. Do not leave placeholders. Do not mention your underlying models."
+                    executor_prompt = f"INTERNAL STRATEGY:\n{blueprint}\n\nExecute this strategy perfectly and deliver the definitive final master output."
                     
                     response = groq_client.chat.completions.create(
                         model="llama-3.3-70b-versatile",
