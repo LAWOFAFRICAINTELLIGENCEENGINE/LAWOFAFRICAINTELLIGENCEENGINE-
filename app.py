@@ -1,18 +1,13 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 from groq import Groq
 import google.generativeai as genai
 from openai import OpenAI
 import json
 import pandas as pd
-import yaml
-from yaml.loader import SafeLoader
-
-# 
+#
 
 # 1. INFRASTRUCTURE & CSS
 # 
-
 st.set_page_config(page_title="Law of Africa & Universal Engine", page_icon="⚖️", layout="wide")
 
 st.markdown("""
@@ -40,59 +35,76 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+#
 
+# 2. BULLETPROOF LOGIN & SIGN-UP SYSTEM
 # 
-
-# 2. LOGIN & AUTHENTICATION SYSTEM
-# 
-
-# (Note: Replace this dummy dict with your actual DB/Users if needed)
-credentials = {
-    "usernames": {
-        "emmanuel": {"email": "admin@lawofafrica.com", "name": "Emmanuel", "password": "abc", "is_vip": True},
-        "guest": {"email": "guest@test.com", "name": "Guest User", "password": "123", "is_vip": False}
+# Initialize user database and session states
+if "users_db" not in st.session_state:
+    st.session_state.users_db = {
+        "odogwucent001": {"password": "Tezla@@33Cent..", "is_vip": True}, # Your Main Premium Admin Account
+        "guest": {"password": "123", "is_vip": False}    # Standard free user
     }
-}
+if "current_user" not in st.session_state:
+    st.session_state.current_user = None
 
-authenticator = stauth.Authenticate(
-    credentials,
-    "law_of_africa_cookie",
-    "abcdef",
-    30
-)
-
-name, authentication_status, username = authenticator.login("main")
-
-if authentication_status == False:
-    st.error("Username/password is incorrect")
-elif authentication_status == None:
-    st.warning("Please enter your username and password to access the Engine.")
-elif authentication_status:
+# Show Auth Screen if not logged in
+if st.session_state.current_user is None:
+    st.title("⚖️ Law of Africa & Universal Engine")
+    st.write("Please log in or create an account to access the super-system.")
     
-    # 
+    tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
+    
+    with tab1:
+        l_user = st.text_input("Username", key="l_user")
+        l_pass = st.text_input("Password", type="password", key="l_pass")
+        if st.button("Login", use_container_width=True):
+            if l_user in st.session_state.users_db and st.session_state.users_db[l_user]["password"] == l_pass:
+                st.session_state.current_user = l_user
+                st.success("Logged in successfully!")
+                st.rerun()
+            else:
+                st.error("Invalid Username or Password.")
+                
+    with tab2:
+        s_user = st.text_input("Choose a Username", key="s_user")
+        s_pass = st.text_input("Choose a Password", type="password", key="s_pass")
+        if st.button("Create Account", use_container_width=True):
+            if s_user in st.session_state.users_db:
+                st.error("Username already exists! Please choose another.")
+            elif s_user and s_pass:
+                # New users default to free tier (Not VIP)
+                st.session_state.users_db[s_user] = {"password": s_pass, "is_vip": False}
+                st.success("Account created successfully! You can now log in via the Login tab.")
+            else:
+                st.warning("Please fill out both fields.")
 
-    # 3. INITIALIZE SESSION STATE & PAYWALL
-    # 
+# 
 
+# 3. MAIN UNIVERSAL INTERFACE (Once Logged In)
+# 
+
+else:
+    # Initialize Engine Trackers
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "query_count" not in st.session_state:
         st.session_state.query_count = 0 
-    
-    # Check VIP status from credentials
-    is_vip = credentials["usernames"][username].get("is_vip", False)
+        
+    current_user = st.session_state.current_user
+    is_vip = st.session_state.users_db[current_user]["is_vip"]
 
-    # 
-
-    # 4. SIDEBAR & TELEMETRY
-    # 
-
+    # --- SIDEBAR CONTROL ---
     with st.sidebar:
-        st.title(f"Welcome, {name}")
-        authenticator.logout("Logout", "sidebar")
+        st.title(f"Welcome, {current_user.capitalize()}!")
+        if st.button("🚪 Logout"):
+            st.session_state.current_user = None
+            st.rerun()
+            
         st.divider()
         st.title("⚙️ Engine Control")
         st.toggle("📊 View Engine Telemetry", key="show_telemetry")
+        
         st.divider()
         if st.button("🗑️ Reset Engine Memory"):
             st.session_state.messages = []
@@ -100,17 +112,14 @@ elif authentication_status:
             st.rerun()
             
         st.divider()
+        # Paywall Status
         if is_vip:
             st.success("💎 VIP Premium Active: Unlimited Queries")
         else:
             queries_left = max(0, 3 - st.session_state.query_count)
             st.warning(f"🆓 Free Tier: {queries_left} Queries Remaining")
 
-    # 
-
-    # 5. MAIN UNIVERSAL INTERFACE
-    # 
-
+    # --- MAIN VIEW ---
     if st.session_state.get("show_telemetry", False):
         st.title("📊 Engine Telemetry & Core Archives")
         col1, col2 = st.columns(2)
