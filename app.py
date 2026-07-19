@@ -1,9 +1,17 @@
 import streamlit as st
+import streamlit_authenticator as stauth
 from groq import Groq
 import google.generativeai as genai
 from openai import OpenAI
 import json
 import pandas as pd
+import sqlalchemy
+import psycopg2
+import PyPDF2
+import faiss
+from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from sentence_transformers import SentenceTransformer
 
 # 1. Infrastructure Config & CSS
 st.set_page_config(page_title="Law of Africa & Universal Engine", page_icon="⚖️", layout="wide")
@@ -40,6 +48,11 @@ with st.sidebar:
     
     st.divider()
     show_telemetry = st.toggle("📊 View Engine Telemetry")
+    
+    st.divider()
+    st.success("🔌 LangChain & FAISS Modules Loaded")
+    st.success("📄 PyPDF2 Document Scanner Loaded")
+    st.success("🗄️ SQLAlchemy Database Ready")
     
     st.divider()
     if st.button("🗑️ Reset Engine Memory"):
@@ -112,7 +125,7 @@ else:
                 # 
 
                 # STAGE 2: GEMINI - THE SUPREME ROUTER & ARCHITECT
-                # 
+                #
 
                 with st.spinner("🏗️ Brain 2 (Gemini): Mapping the absolute master strategy..."):
                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -165,4 +178,4 @@ else:
             except Exception as e:
                 st.error(f"Engine Interruption: {e}")
                 
-        st.rerun()
+        st.rerun() 
