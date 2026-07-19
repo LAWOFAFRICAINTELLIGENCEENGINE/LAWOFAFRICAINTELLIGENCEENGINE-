@@ -3,7 +3,7 @@ streamlit-authenticator
 sqlalchemy
 psycopg2-binary
 PyPDF2
-google-genai
+google-generativeai
 groq
 langchain
 langchain-community
