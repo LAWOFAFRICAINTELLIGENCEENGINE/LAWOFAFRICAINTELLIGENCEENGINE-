@@ -4,10 +4,12 @@ import google.generativeai as genai
 from openai import OpenAI
 import json
 import pandas as pd
-#
+
+# 
 
 # 1. INFRASTRUCTURE & CSS
-# 
+#
+
 st.set_page_config(page_title="Law of Africa & Universal Engine", page_icon="⚖️", layout="wide")
 
 st.markdown("""
@@ -35,15 +37,17 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
 #
 
 # 2. BULLETPROOF LOGIN & SIGN-UP SYSTEM
 # 
+
 # Initialize user database and session states
 if "users_db" not in st.session_state:
     st.session_state.users_db = {
-        "odogwucent001": {"password": "Tezla@@33Cent..", "is_vip": True}, # Your Main Premium Admin Account
-        "guest": {"password": "123", "is_vip": False}    # Standard free user
+        "odogwucent001": {"password": "Tezla@@33Cent..", "is_vip": True, "full_name": "Admin Emmanuel Paulinus", "email": "paulinusemmanuel634@gmail.com"}, 
+        "guest": {"password": "123", "is_vip": False, "full_name": "Guest User", "email": "guest@test.com"}    
     }
 if "current_user" not in st.session_state:
     st.session_state.current_user = None
@@ -55,29 +59,39 @@ if st.session_state.current_user is None:
     
     tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
     
+    # --- LOGIN TAB ---
     with tab1:
         l_user = st.text_input("Username", key="l_user")
         l_pass = st.text_input("Password", type="password", key="l_pass")
         if st.button("Login", use_container_width=True):
             if l_user in st.session_state.users_db and st.session_state.users_db[l_user]["password"] == l_pass:
                 st.session_state.current_user = l_user
-                st.success("Logged in successfully!")
+                st.success(f"Welcome back, {st.session_state.users_db[l_user].get('full_name', l_user)}!")
                 st.rerun()
             else:
                 st.error("Invalid Username or Password.")
                 
+    # --- SIGN UP TAB ---
     with tab2:
+        s_fullname = st.text_input("Full Name", key="s_fullname")
+        s_email = st.text_input("Email Address", key="s_email")
         s_user = st.text_input("Choose a Username", key="s_user")
         s_pass = st.text_input("Choose a Password", type="password", key="s_pass")
+        
         if st.button("Create Account", use_container_width=True):
             if s_user in st.session_state.users_db:
                 st.error("Username already exists! Please choose another.")
-            elif s_user and s_pass:
-                # New users default to free tier (Not VIP)
-                st.session_state.users_db[s_user] = {"password": s_pass, "is_vip": False}
-                st.success("Account created successfully! You can now log in via the Login tab.")
+            elif s_fullname and s_email and s_user and s_pass:
+                # Save all details to the database (New users are Free Tier by default)
+                st.session_state.users_db[s_user] = {
+                    "password": s_pass, 
+                    "is_vip": False,
+                    "full_name": s_fullname,
+                    "email": s_email
+                }
+                st.success("Account created successfully! You can now switch to the 🔐 Login tab to enter the Engine.")
             else:
-                st.warning("Please fill out both fields.")
+                st.warning("Please fill out all fields before submitting.")
 
 # 
 
@@ -93,10 +107,11 @@ else:
         
     current_user = st.session_state.current_user
     is_vip = st.session_state.users_db[current_user]["is_vip"]
+    display_name = st.session_state.users_db[current_user].get("full_name", current_user)
 
     # --- SIDEBAR CONTROL ---
     with st.sidebar:
-        st.title(f"Welcome, {current_user.capitalize()}!")
+        st.title(f"Welcome, {display_name}!")
         if st.button("🚪 Logout"):
             st.session_state.current_user = None
             st.rerun()
@@ -114,7 +129,7 @@ else:
         st.divider()
         # Paywall Status
         if is_vip:
-            st.success("💎 VIP Premium Active: Unlimited Queries")
+            st.success("💎 Premium Active: Unlimited Queries")
         else:
             queries_left = max(0, 3 - st.session_state.query_count)
             st.warning(f"🆓 Free Tier: {queries_left} Queries Remaining")
@@ -136,8 +151,8 @@ else:
         # Check Paywall BEFORE showing input
         if not is_vip and st.session_state.query_count >= 3:
             st.error("🔒 **FREE TRIAL EXPIRED**")
-            st.write("You have used your 3 free queries. Please upgrade to a Monthly or Yearly VIP Premium Subscription to unlock the Universal Intelligence Engine.")
-            st.button("💳 Upgrade to VIP Premium Now")
+            st.write("You have used your 3 free queries. Please upgrade to a Monthly or Yearly Premium Subscription to unlock the Universal Intelligence Engine.")
+            st.button("💳 Upgrade to Premium Now")
         else:
             # File Uploader
             uploaded_files = st.file_uploader("📎 Upload PDFs or Images", accept_multiple_files=True, type=['pdf', 'png', 'jpg', 'jpeg'])
