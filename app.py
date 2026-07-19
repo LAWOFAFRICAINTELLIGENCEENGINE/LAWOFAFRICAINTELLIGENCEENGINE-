@@ -84,7 +84,8 @@ with st.sidebar:
     st.title("⚙️ Engine Control")
     
     st.divider()
-    show_telemetry = st.toggle("📊 View Engine Telemetry")
+    # FIXED TOGGLE: Tied to session state key so it never gets stuck
+    st.toggle("📊 View Engine Telemetry", key="show_telemetry")
     
     st.divider()
     st.success("🔌 LangChain & FAISS Modules Loaded")
@@ -97,7 +98,7 @@ with st.sidebar:
         st.rerun()
 
 # 5. ADMIN TELEMETRY DASHBOARD
-if show_telemetry:
+if st.session_state.show_telemetry:
     st.title("📊 Engine Telemetry & Core Archives")
     st.write("Secure infrastructure metrics across Law, History, Code, and General queries.")
     
@@ -112,7 +113,7 @@ if show_telemetry:
 
 # 6. UNIVERSAL SUPER-SYSTEM INTERFACE
 else: 
-    # Clean, strict branding - NO extra captions
+    # Clean, strict branding
     st.title("Law of Africa & Universal Intelligence Engine ⚖️🌍")
         
     # Render Chat History
@@ -120,16 +121,23 @@ else:
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
+    # ADDED: File Uploader for PDFs and Images right above the chat input
+    uploaded_files = st.file_uploader("📎 Upload PDFs or Images to the Engine", accept_multiple_files=True, type=['pdf', 'png', 'jpg', 'jpeg'])
+
     # User Input
     prompt = st.chat_input("Enter your request...")
 
     if prompt:
+        # Check if files are attached to modify the prompt context visually
+        file_status = f" [Attached {len(uploaded_files)} file(s)]" if uploaded_files else ""
+        full_prompt_display = prompt + file_status
+
         # Update Telemetry & Save User Prompt
         st.session_state.query_count += 1
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.messages.append({"role": "user", "content": full_prompt_display})
         
         with st.chat_message("user"):
-            st.write(prompt)
+            st.write(full_prompt_display)
         
         with st.chat_message("assistant"):
             try:
