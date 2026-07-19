@@ -4,12 +4,9 @@ import google.generativeai as genai
 from openai import OpenAI
 import json
 import pandas as pd
-
 # 
-
 # 1. INFRASTRUCTURE & CSS
 #
-
 st.set_page_config(page_title="Law of Africa & Universal Engine", page_icon="⚖️", layout="wide")
 
 st.markdown("""
@@ -28,7 +25,6 @@ st.markdown("""
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 2L11 13' /%3E%3Cpath d='M22 2l-7 20-4-9-9-4 20-7z' /%3E%3Cpath d='M5 13l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z' fill='white' stroke='none' /%3E%3C/svg%3E");
     background-size: contain; background-repeat: no-repeat; background-position: center;
 }
-
 /* CUSTOM 3-DOTS MENU */
 [data-testid="baseButton-header"] svg { display: none !important; }
 [data-testid="baseButton-header"]::after {
@@ -37,12 +33,9 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-
 #
-
 # 2. BULLETPROOF LOGIN & SIGN-UP SYSTEM
 # 
-
 # Initialize user database and session states
 if "users_db" not in st.session_state:
     st.session_state.users_db = {
@@ -94,10 +87,8 @@ if st.session_state.current_user is None:
                 st.warning("Please fill out all fields before submitting.")
 
 # 
-
 # 3. MAIN UNIVERSAL INTERFACE (Once Logged In)
 # 
-
 else:
     # Initialize Engine Trackers
     if "messages" not in st.session_state:
