@@ -44,7 +44,7 @@ st.markdown("""
 # Initialize user database and session states
 if "users_db" not in st.session_state:
     st.session_state.users_db = {
-        "odogwucent001": {"password": "YOUR_ACTUAL_PASSWORD", "is_vip": True, "full_name": "Emmanuel Paulinus", "email": "YOUR_ACTUAL_EMAIL@email.com"}, 
+        "odogwucent001": {"password": "Tezla@@33CENT..", "is_vip": True, "full_name": "Emmanuel Paulinus", "email": "paulinusemmanuel634@gmil.com"}, 
         "guest": {"password": "123", "is_vip": False, "full_name": "Guest User", "email": "guest@test.com"}    
     }
 if "current_user" not in st.session_state:
