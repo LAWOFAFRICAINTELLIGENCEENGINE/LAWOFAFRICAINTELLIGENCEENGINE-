@@ -146,7 +146,7 @@ else:
                                 elif file.type in ["image/png", "image/jpeg", "image/jpg"]:
                                     img = Image.open(file)
                                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                                    vision_model = genai.GenerativeModel('gemini-1.5-pro')
+                                    vision_model = genai.GenerativeModel('gemini-1.5-flash')
                                     vis_resp = vision_model.generate_content(["Describe every detail of this image so I can analyze it:", img])
                                     file_context += f"\n--- IMAGE CONTENT: {file.name} ---\n{vis_resp.text}\n"
                     
