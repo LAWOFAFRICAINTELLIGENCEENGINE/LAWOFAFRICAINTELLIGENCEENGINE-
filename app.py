@@ -90,7 +90,7 @@ else:
     display_name = st.session_state.users_db[current_user].get("full_name", current_user)
 
     with st.sidebar:
-        st.title(f"Welcome, {display_name}!")
+        st.sidebar.write("Welcome, Owner: Emmanuel Paulinus!")
         if st.button("🚪 Logout"):
             st.session_state.current_user = None
             st.rerun()
