@@ -118,7 +118,7 @@ else:
     else:
         # File Uploader
         uploaded_files = st.file_uploader("📎 Upload PDFs or Images", accept_multiple_files=True, type=['pdf', 'png', 'jpg', 'jpeg'])
-        prompt = st.chat_input("Ask a legal problem, trace history, write code...")
+        prompt = st.chat_input("Ask a legal problem, trace history, write codes...")
 
         if prompt:
             st.session_state.query_count += 1
@@ -171,7 +171,7 @@ else:
                     # 🧠 STAGE 2: GEMINI
                     with st.spinner("🏗️ Analyzing files & mapping strategy..."):
                         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+                        gemini_model = genai.GenerativeModel('gemini-1.5-flash')
                         blueprint = gemini_model.generate_content(f"USER PROMPT: {active_prompt}\nCONTEXT: {grok_context}\nDraft a logical blueprint to answer this.").text
                     
                     # 🧠 STAGE 3: GROQ
