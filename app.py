@@ -7,7 +7,6 @@ from PIL import Image
 import io
 
 # 
-
 # 1. INFRASTRUCTURE & CSS
 # 
 
@@ -33,7 +32,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 
-
 # 2. LOGIN & SIGN-UP SYSTEM
 # 
 
@@ -146,7 +144,7 @@ else:
                                 elif file.type in ["image/png", "image/jpeg", "image/jpg"]:
                                     img = Image.open(file)
                                     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                                    llm = ChatGoogleGenerativeAI(model="gemini-flash")
+                                    gemini_model = genai.GenerativeModel("gemini-flash")
                                     vis_resp = vision_model.generate_content(["Describe every detail of this image so I can analyze it:", img])
                                     file_context += f"\n--- IMAGE CONTENT: {file.name} ---\n{vis_resp.text}\n"
                     
@@ -171,7 +169,7 @@ else:
                     # 🧠 STAGE 2: GEMINI
                     with st.spinner("🏗️ Analyzing files & mapping strategy..."):
                         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        llm = ChatGoogleGenerativeAI(model="gemini-flash")
+                        gemini_model = genai.GenerativeModel("gemini-flash")
                         blueprint = gemini_model.generate_content(f"USER PROMPT: {active_prompt}\nCONTEXT: {grok_context}\nDraft a logical blueprint to answer this.").text
                     
                     # 🧠 STAGE 3: GROQ
