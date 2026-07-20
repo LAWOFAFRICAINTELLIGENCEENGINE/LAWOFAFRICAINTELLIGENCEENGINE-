@@ -2,7 +2,6 @@ streamlit
 sqlalchemy
 psycopg2-binary
 PyPDF2
-google-generativeai
 groq
 langchain
 langchain-community
@@ -10,4 +9,5 @@ langchain-text-splitters
 sentence-transformers
 faiss-cpu
 openai
+google-generativeai>=0.5.2
 pillow 
